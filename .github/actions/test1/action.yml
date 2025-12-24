@@ -1,18 +1,25 @@
-name: Test action
-description: This is a test actionn
+name: Test Action
+description: This is a test action
 inputs:
   PORT_NUMBER:
     description: "Port number to use"
     required: false
-    default: "8000"
+    default: "8080"
+outputs:
+  decide_port_output:
+    description: "Output of the decide port step"
+    value: ${{steps.decide_port.outputs.decide_port_output}}
+
 runs:
   using: composite
   steps:
     - name: print hello world
       run: |
-        echo "Hello world"
+        echo "Hello World"
       shell: bash
     - name: decide port
+      id: decide_port
       run: |
-        echo "Port is set to ${{ inputs.PORT_NUMBER }}"
+        echo "PORT is set to ${{ inputs.PORT_NUMBER }}"
+        echo "::set-output name=decide_port_output::ok"
       shell: bash

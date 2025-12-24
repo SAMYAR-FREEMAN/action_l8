@@ -17,9 +17,13 @@ jobs:
         steps:
             - uses: actions/checkout@v3
             - name: using test1 action
+              id: test1
               uses: ./.github/actions/test1
               with:
-                PORT_NUMBER: 4000
+                  PORT_NUMBER: 4000
+            - name: print output using test1 action
+              run: |
+                  echo "result : ${{steps.test1.outputs.decide_port_output}}"
             - name: Set up Python 3.9
               uses: actions/setup-python@v3
               with:
