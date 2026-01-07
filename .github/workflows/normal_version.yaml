@@ -1,100 +1,103 @@
 name: CI
 
 on:
-    workflow_dispatch:
-    push:
-        branches: [main]
+  workflow_dispatch:
+  push:
+    branches: [main]
 
 env:
-    PORT: ${{secrets.PORT}}
+  PORT: ${{secrets.PORT}}
+
 jobs:
-    test_project:
-        environment: testing_stage
-        env:
-            shole: ${{secrets.SHOLE}}
-            PassWord: ${{secrets.PASSWORD}}
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v3
-            - name: using test1 action
-              id: test1
-              uses: ./.github/actions/test1
-              with:
-                  PORT_NUMBER: 4000
-            - name: print output using test1 action
-              run: |
-                  echo "result : ${{steps.test1.outputs.decide_port_output}}"
-            - name: Set up Python 3.9
-              uses: actions/setup-python@v3
-              with:
-                  python-version: 3.9
-            - uses: actions/cache@v4
-              with:
-                  path: ~/.cache/pip
-                  key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-                  restore-keys: |
-                      ${{ runner.os }}-pip-
-            - name: Install dependencies
-              run: |
-                  python -m pip install --upgrade pip
-                  pip install -r requirements.txt
-            - name: Test with pytest
-              continue-on-error: true
-              run: |
-                  pytest -v
-            - name: unbreakable step
-              run: |
-                  echo "This step will always run even if previous steps fail."
-            - name: Upload Report Txt
-              uses: actions/upload-artifact@v5
-              with:
-                  name: Report_Of_Test_${{ matrix.python-version }}_${{ matrix.operating-system }}
-                  path: report.txt
-                  # overwrite: true
-            - name: print env
-              run: |
-                  echo "PORT: ${{env.PORT}}"
-                  echo "PassWord: ${{ env.PassWord }}"
-                  echo "shole: ${{env.shole}}"
+  test_project:
+    runs-on: ubuntu-latest
+    environment: testing_stage
+    env:
+      shole: ${{secrets.SHOLE}}
+      PassWord: ${{secrets.PASSWORD}}
+    steps:
+      - uses: actions/checkout@v3
 
-    after_test_failure:
-        needs: test_project
-        if: failure()
-        runs-on: ubuntu-latest
-        steps:
-            - name: print failure message
-              run: |
-                  echo "Test failed!"
+      - name: Using custom action
+        id: test1
+        uses: ./.github/actions/test1
+        with:
+          INPUT_NUM: "1"
 
-    run_project:
-        needs: test_project
-        runs-on: ubuntu-latest
-        environment: deployment_stage
-        env:
-            shole: ${{secrets.SHOLE}}
-        steps:
-            - uses: actions/checkout@v3
-            - name: Set up Python 3.9
-              uses: actions/setup-python@v3
-              with:
-                  python-version: 3.9
-            - name: Install dependencies
-              run: |
-                  python -m pip install --upgrade pip
-                  pip install -r requirements.txt
-            - name: Run the project
-              run: |
-                  echo "Running the project..."
-            - name: print env
-              run: |
-                  echo "PORT: ${{env.PORT}}"
-                  echo "shole: ${{env.shole}}"
+      - name: Print output of custom action
+        run: |
+          echo "The input was 1, so the result is: ${{ steps.test1.outputs.final_decision }}"
 
-    show_report:
-        needs: test_project
-        runs-on: ubuntu-latest
-        steps:
-            - name: Download Report Txt
-              uses: actions/download-artifact@v5
-              with:
-                  name: Report_Of_Test_${{ matrix.python-version }}_${{ matrix.operating-system }}
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.9
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # چک می‌کند اگر فایل requirements وجود داشت نصب کند تا خطا ندهد
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Test with pytest
+        continue-on-error: true
+        run: |
+          pytest -v
+
+      - name: Unbreakable step
+        if: always() 
+        run: |
+          echo "This step will always run."
+          # ساخت یک فایل گزارش نمونه برای اینکه مرحله آپلود خطا ندهد
+          echo "Test Report Content" > report.txt
+
+      - name: Upload Report Txt
+        uses: actions/upload-artifact@v5
+        with:
+          name: Report_Of_Test_Py3.9_Ubuntu
+          path: report.txt
+
+      - name: Print env
+        run: |
+          echo "PORT: ${{env.PORT}}"
+          echo "shole: ${{env.shole}}"
+
+  after_test_failure:
+    needs: test_project
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print failure message
+        run: echo "Test failed!"
+
+  run_project:
+    needs: test_project
+    runs-on: ubuntu-latest
+    environment: deployment_stage
+    env:
+      shole: ${{secrets.SHOLE}}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run the project
+        run: echo "Running the project..."
+      - name: Print Env
+        run: |
+          echo "PORT: ${{env.PORT}}"
+
+  show_report:
+    needs: test_project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Report Txt
+        uses: actions/download-artifact@v5
+        with:
+          name: Report_Of_Test_Py3.9_Ubuntu
+      - name: Display Report
+        run: cat report.txt

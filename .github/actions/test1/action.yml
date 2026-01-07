@@ -1,25 +1,28 @@
-name: Test Action
-description: This is a test action
+name: "Decision Maker Action"
+description: "Returns yes if input is 1, returns no if input is 2"
 inputs:
-  PORT_NUMBER:
-    description: "Port number to use"
-    required: false
-    default: "8080"
+  INPUT_NUM:
+    description: "Number to check (1 or 2)"
+    required: true
+    default: "1"
 outputs:
-  decide_port_output:
-    description: "Output of the decide port step"
-    value: ${{steps.decide_port.outputs.decide_port_output}}
+  final_decision:
+    description: "Result: yes or no"
+    value: ${{ steps.logic_step.outputs.logic_result }}
 
 runs:
-  using: composite
+  using: "composite"
   steps:
-    - name: print hello world
-      run: |
-        echo "Hello World"
+    - name: Run Logic
+      id: logic_step
       shell: bash
-    - name: decide port
-      id: decide_port
       run: |
-        echo "PORT is set to ${{ inputs.PORT_NUMBER }}"
-        echo "::set-output name=decide_port_output::ok"
-      shell: bash
+        echo "Processing input: ${{ inputs.INPUT_NUM }}"
+        
+        if [ "${{ inputs.INPUT_NUM }}" == "1" ]; then
+          echo "logic_result=yes" >> $GITHUB_OUTPUT
+        elif [ "${{ inputs.INPUT_NUM }}" == "2" ]; then
+          echo "logic_result=no" >> $GITHUB_OUTPUT
+        else
+          echo "logic_result=unknown" >> $GITHUB_OUTPUT
+        fi
