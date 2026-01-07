@@ -1,0 +1,6 @@
+name: Js Test on
+description: this js reusable on
+
+runs:
+  using: "node20"
+  main: "main.js"
