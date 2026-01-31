@@ -1,15 +1,26 @@
-"name": "Js Test on"
-"description": "this js reusable on"
-"inputs": 
-  "rastakhiz": 
-    "description": "'tarikh rastakhizi'"
-    "required": false
-    "default": "'2026-01-08'"
-"outputs": 
-  "enqelab": 
-    "description": "'azadi mihan'"
-  
+name: "Js Test on"
+description: "this js reusable on"
+inputs: 
+#   "rastakhiz": 
+#     "description": "'tarikh rastakhizi'"
+#     "required": false
+#     "default": "'2026-01-08'"
+# "outputs": 
+#   "enqelab": 
+#     "description": "'azadi mihan'"
 
-"runs": 
-  "using": "node20"
-  "main": "main.js"
+  num:
+    description: "first number"
+    required: true
+
+  num2:
+    description: "second number"
+    required: true
+
+outputs:
+  Result:
+    description: "sum of two numbers"
+
+runs: 
+  using: "node20"
+  main: "main.js"
