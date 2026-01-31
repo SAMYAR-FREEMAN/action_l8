@@ -1,28 +1,15 @@
-name: "Decision Maker Action"
-description: "Returns yes if input is 1, returns no if input is 2"
-inputs:
-  INPUT_NUM:
-    description: "Number to check (1 or 2)"
-    required: true
-    default: "1"
-outputs:
-  final_decision:
-    description: "Result: yes or no"
-    value: ${{ steps.logic_step.outputs.logic_result }}
+"name": "Js Test on"
+"description": "this js reusable on"
+"inputs": 
+  "rastakhiz": 
+    "description": "'tarikh rastakhizi'"
+    "required": false
+    "default": "'2026-01-08'"
+"outputs": 
+  "enqelab": 
+    "description": "'azadi mihan'"
+  
 
-runs:
-  using: "composite"
-  steps:
-    - name: Run Logic
-      id: logic_step
-      shell: bash
-      run: |
-        echo "Processing input: ${{ inputs.INPUT_NUM }}"
-        
-        if [ "${{ inputs.INPUT_NUM }}" == "1" ]; then
-          echo "logic_result=yes" >> $GITHUB_OUTPUT
-        elif [ "${{ inputs.INPUT_NUM }}" == "2" ]; then
-          echo "logic_result=no" >> $GITHUB_OUTPUT
-        else
-          echo "logic_result=unknown" >> $GITHUB_OUTPUT
-        fi
+"runs": 
+  "using": "node20"
+  "main": "main.js"
